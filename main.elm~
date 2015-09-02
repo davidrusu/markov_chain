@@ -1,5 +1,5 @@
 import Html exposing (div, button, text)
-import Html.Events exposing (onClick, on, targetValue)
+import Html.Events exposing (onClick)
 import StartApp.Simple as StartApp
 import Dict
 import List
@@ -10,14 +10,12 @@ type alias State = String
 
 type alias  MarkovChain = Dict.Dict State (List (Float, State))
 initTrainingData = """
-The Project Gutenberg EBook of Les Miserables, by Victor Hugo
-
-This eBook is for the use of anyone anywhere at no cost and with
-almost no restrictions whatsoever.  You may copy it, give it away or
-re-use it under the terms of the Project Gutenberg License included
-with this eBook or online at www.gutenberg.org
+Overeating food addiction is far, far worse because of dramatically-reduced lifespan from many forms of cancer, chronic heart diseases and the lost of limbs and eyesight from Type II diabetes. A neighbor of my childhood home whom worked at Spectra Physics died within six months of uncontrolled diabetes. I also lost a great uncle whom went the same way more recently within about 10 months.
+In northern Canada and American Indian reservations, that might be true. Some places, it's heroin and others, it's meth, paint thinner or glue. (Police, nurses and social workers typically know what's going around.)
+From a health perspective, most doctors would probably argue smoking. Philip Morris International is targeting Asian countries where they are as ubiquitous in most realms of life as was soda advertisements to kids in schools.
+Alcohol abuse culture is prevalent in military, universities and sales/management.
+I think the impact varies with location and social circles, and is hard to qualtitatively measure (apart from lives, hospital visits/bills, lost wages) because it's very qualitative.
 """
-                   
 model = { markovChain = trainMarkovChain (tokenizeData initTrainingData)
         , memory = 1
         , trainingData = initTrainingData
@@ -26,16 +24,18 @@ model = { markovChain = trainMarkovChain (tokenizeData initTrainingData)
 
 view address model =
   div []
-    [ -- div [] [ text <| toString model.markovChain ]
-      div [] [ text <| case currentState model of
+    [ div [] [ text <| toString model.markovChain ]
+    , div [] [ text <| case currentState model of
                          Nothing -> "No cur state"
                          Just curToken -> toString <| nextState model.seed model.markovChain curToken ]
     , div [] [ text model.data ]
-    , button [ onClick address TrainMarkovChain ] [ text "Train Markov Chain" ]
-    , button [ onClick address Daydream ] [ text "Daydream" ]
+    , button [ onClick address Increment ] [ text "+" ]
+    , button [ onClick address Decrement ] [ text "-" ]
     ]
 
-type Action = TrainMarkovChain | Daydream
+
+  
+type Action = Increment | Decrement
 
 updateNextState : State -> Maybe (List (Float, State)) -> Maybe (List (Float, State))
 updateNextState nextState = \mStates -> case mStates of
@@ -47,12 +47,8 @@ updateNextState nextState = \mStates -> case mStates of
 updateState : State -> State -> MarkovChain -> MarkovChain
 updateState state nextState mc = Dict.update state (updateNextState nextState) mc
 
-normalizeNextStates : State -> List (Float, State) -> List (Float, State)
-normalizeNextStates state nextStates = let totalP = List.sum <| List.map fst nextStates in
-                                       List.map (\(p, s) -> (p/totalP, s)) nextStates
-
 normalizeProbabilities : MarkovChain -> MarkovChain
-normalizeProbabilities mc = Dict.map normalizeNextStates mc
+normalizeProbabilities mc = Dict.map (\state nextStates -> let totalP = List.sum <| List.map (\(p, _) -> p) nextStates in List.map (\(p, s) -> (p/totalP, s)) nextStates) mc
 
 trainMarkovChain : List State -> MarkovChain
 trainMarkovChain input = let (prev, markovChain) = List.foldl (\state (p, mc) -> (state, updateState p state mc)) ("", Dict.empty) input in
@@ -80,13 +76,13 @@ currentState model = List.head <| List.reverse <| tokenizeData model.data
                                                             
 update action model =
   case action of
-    TrainMarkovChain -> { model | markovChain <- trainMarkovChain (tokenizeData model.trainingData) }
-    Daydream         -> case currentState model of
-                          Nothing       -> { model | data <- String.concat [model.data, "a"] }
-                          Just curToken -> case nextState model.seed model.markovChain <| curToken of
-                                             (Just token, newSeed) -> { model | data <- String.concat [ model.data, " ", token ]
-                                                                              , seed <- newSeed }
-                                             (Nothing, newSeed)    -> { model | seed <- newSeed
+    Increment -> { model | markovChain <- trainMarkovChain (tokenizeData model.trainingData) }
+    Decrement -> case currentState model of
+                   Nothing       -> { model | data <- String.concat [model.data, "a"] }
+                   Just curToken -> case nextState model.seed model.markovChain <| curToken of
+                                      (Just token, newSeed) -> { model | data <- String.concat [ model.data, " ", token ]
+                                                                       , seed <- newSeed }
+                                      (Nothing, newSeed)    -> { model | seed <- newSeed
                                                                        , data <- String.concat [model.data, "b"]}
 
 
