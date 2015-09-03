@@ -1,5 +1,6 @@
-import Html exposing (div, button, text)
-import Html.Events exposing (onClick, on, targetValue)
+import Html exposing (div, button, text, input, textarea)
+import Html.Attributes exposing (value)
+import Html.Events exposing (onClick, on, targetValue, onKeyPress, onBlur)
 import StartApp.Simple as StartApp
 import Dict
 import List
@@ -7,6 +8,7 @@ import String
 import Random
 
 type alias State = String
+initState = ""
 
 type alias  MarkovChain = Dict.Dict State (List (Float, State))
 initTrainingData = """
@@ -27,15 +29,35 @@ model = { markovChain = trainMarkovChain (tokenizeData initTrainingData)
 view address model =
   div []
     [ -- div [] [ text <| toString model.markovChain ]
-      div [] [ text <| case currentState model of
-                         Nothing -> "No cur state"
-                         Just curToken -> toString <| nextState model.seed model.markovChain curToken ]
-    , div [] [ text model.data ]
-    , button [ onClick address TrainMarkovChain ] [ text "Train Markov Chain" ]
-    , button [ onClick address Daydream ] [ text "Daydream" ]
+      div [] [ text <| "Suggestions:" ++ (String.join " " <| suggestions 4 model) ]
+    , div [] [ textarea [ onInput address Input, onTab address TakeSuggestion NoOp, value model.data] []
+             , button [ onClick address Daydream ] [ text "Daydream" ]
+             ]
+    , div [] [ textarea [ onInput address TrainingDataInput, value model.trainingData] []
+             , button [ onClick address TrainMarkovChain ] [ text "Train Markov Chain" ]
+             ]
     ]
 
-type Action = TrainMarkovChain | Daydream
+onTab address action noOp = onKeyPress address (\keyCode -> if keyCode == 9 then action else noOp)
+  
+onInput address contentToValue =
+    on "input" targetValue (\str -> Signal.message address (contentToValue str))
+      
+type Action = NoOp | TrainMarkovChain | Daydream | Input String | TrainingDataInput String | TakeSuggestion
+
+update action model =
+  case action of
+    NoOp                     -> model
+    TakeSuggestion           -> { model | data <- String.join " " [model.data, topSuggestion model] }
+    Input string             -> { model | data <- string }
+    TrainingDataInput string -> { model | trainingData <- string }
+    TrainMarkovChain         -> { model | markovChain <- trainMarkovChain (tokenizeData model.trainingData) }
+    Daydream                 -> let curState = currentState model in
+                                  case nextState model.seed model.markovChain <| curState of
+                                    (Just token, newSeed) -> { model | data <- String.concat [ model.data, " ", token ]
+                                                             , seed <- newSeed }
+                                    (Nothing, newSeed)    -> { model | seed <- newSeed
+                                                             , data <- String.concat [model.data, "b"] }
 
 updateNextState : State -> Maybe (List (Float, State)) -> Maybe (List (Float, State))
 updateNextState nextState = \mStates -> case mStates of
@@ -47,15 +69,15 @@ updateNextState nextState = \mStates -> case mStates of
 updateState : State -> State -> MarkovChain -> MarkovChain
 updateState state nextState mc = Dict.update state (updateNextState nextState) mc
 
-normalizeNextStates : State -> List (Float, State) -> List (Float, State)
-normalizeNextStates state nextStates = let totalP = List.sum <| List.map fst nextStates in
-                                       List.map (\(p, s) -> (p/totalP, s)) nextStates
+normalizeNextStates : List (Float, State) -> List (Float, State)
+normalizeNextStates nextStates = let totalP = List.sum <| List.map fst nextStates in
+                                 List.map (\(p, s) -> (p/totalP, s)) nextStates
 
 normalizeProbabilities : MarkovChain -> MarkovChain
-normalizeProbabilities mc = Dict.map normalizeNextStates mc
+normalizeProbabilities mc = Dict.map (\_ -> normalizeNextStates)  mc
 
 trainMarkovChain : List State -> MarkovChain
-trainMarkovChain input = let (prev, markovChain) = List.foldl (\state (p, mc) -> (state, updateState p state mc)) ("", Dict.empty) input in
+trainMarkovChain input = let (prev, markovChain) = List.foldl (\state (p, mc) -> (state, updateState p state mc)) (initState, Dict.empty) input in
                          markovChain |> normalizeProbabilities
 
 tokenizeData data = List.filter (\token -> token /= "") <| String.words data
@@ -64,8 +86,21 @@ probability : Random.Generator Float
 probability = Random.float 0 1
 
 accumPValues : List (Float, State) -> List (Float, State)
-accumPValues nextStates = let (_, states) = List.foldl (\(p, state) (accumP, past) -> (p + accumP, (p + accumP, state)::past)) (0, [(0, "")]) nextStates in List.reverse states
-              
+accumPValues nextStates = let (_, states) = List.foldl (\(p, state) (accumP, past) -> (p + accumP, (p + accumP, state)::past)) (0, [(0, initState)]) nextStates in List.reverse states
+
+suggestionsForState : MarkovChain -> State -> List State
+suggestionsForState mc state = List.map snd <| List.reverse <| List.sortBy fst <| case Dict.get state mc of
+                                                                                    Nothing -> []
+                                                                                    Just nextStates -> nextStates
+
+topSuggestion model = case List.head <| suggestions 1 model of
+                        Nothing -> "Something went bad"
+                        Just suggestion -> suggestion
+
+suggestions n model = List.take n <| case suggestionsForState model.markovChain (currentState model)  of
+                                       [] -> suggestionsForState model.markovChain (previousState model)
+                                       xs -> xs
+
 nextState : Random.Seed -> MarkovChain -> State -> (Maybe State, Random.Seed)
 nextState seed mc state = case Dict.get state mc of
                        Nothing -> (Nothing, seed)
@@ -75,21 +110,18 @@ nextState seed mc state = case Dict.get state mc of
                                             Nothing      -> (Nothing, newSeed)
                                             Just (_, ns) -> (Just ns, newSeed)
                                              
+-- this should return the initState if list is empty
+currentState model = nStatesBack 0 model
+                     
+previousState model = nStatesBack 1 model
 
-currentState model = List.head <| List.reverse <| tokenizeData model.data
-                                                            
-update action model =
-  case action of
-    TrainMarkovChain -> { model | markovChain <- trainMarkovChain (tokenizeData model.trainingData) }
-    Daydream         -> case currentState model of
-                          Nothing       -> { model | data <- String.concat [model.data, "a"] }
-                          Just curToken -> case nextState model.seed model.markovChain <| curToken of
-                                             (Just token, newSeed) -> { model | data <- String.concat [ model.data, " ", token ]
-                                                                              , seed <- newSeed }
-                                             (Nothing, newSeed)    -> { model | seed <- newSeed
-                                                                       , data <- String.concat [model.data, "b"]}
+nStatesBack n model = case List.head <| List.drop n <| List.reverse <| tokenizeData model.data of
+                       Nothing    -> initState
+                       Just state -> state
 
+actions : Signal.Mailbox Action
+actions = Signal.mailbox NoOp
 
-main = StartApp.start { model = model
-                      , view = view
-                      , update = update }
+modelSignal = Signal.foldp update model actions.signal
+
+main = Signal.map (view actions.address) modelSignal

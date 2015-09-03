@@ -2908,6 +2908,634 @@ Elm.Html.make = function (_elm) {
                       ,menu: menu};
    return _elm.Html.values;
 };Elm.Html = Elm.Html || {};
+Elm.Html.Attributes = Elm.Html.Attributes || {};
+Elm.Html.Attributes.make = function (_elm) {
+   "use strict";
+   _elm.Html = _elm.Html || {};
+   _elm.Html.Attributes = _elm.Html.Attributes || {};
+   if (_elm.Html.Attributes.values)
+   return _elm.Html.Attributes.values;
+   var _op = {},
+   _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   $moduleName = "Html.Attributes",
+   $Basics = Elm.Basics.make(_elm),
+   $Html = Elm.Html.make(_elm),
+   $Json$Encode = Elm.Json.Encode.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm),
+   $String = Elm.String.make(_elm),
+   $VirtualDom = Elm.VirtualDom.make(_elm);
+   var attribute = $VirtualDom.attribute;
+   var property = $VirtualDom.property;
+   var stringProperty = F2(function (name,
+   string) {
+      return A2(property,
+      name,
+      $Json$Encode.string(string));
+   });
+   var $class = function (name) {
+      return A2(stringProperty,
+      "className",
+      name);
+   };
+   var id = function (name) {
+      return A2(stringProperty,
+      "id",
+      name);
+   };
+   var title = function (name) {
+      return A2(stringProperty,
+      "title",
+      name);
+   };
+   var accesskey = function ($char) {
+      return A2(stringProperty,
+      "accesskey",
+      $String.fromList(_L.fromArray([$char])));
+   };
+   var contextmenu = function (value) {
+      return A2(stringProperty,
+      "contextmenu",
+      value);
+   };
+   var dir = function (value) {
+      return A2(stringProperty,
+      "dir",
+      value);
+   };
+   var draggable = function (value) {
+      return A2(stringProperty,
+      "draggable",
+      value);
+   };
+   var dropzone = function (value) {
+      return A2(stringProperty,
+      "dropzone",
+      value);
+   };
+   var itemprop = function (value) {
+      return A2(stringProperty,
+      "itemprop",
+      value);
+   };
+   var lang = function (value) {
+      return A2(stringProperty,
+      "lang",
+      value);
+   };
+   var tabindex = function (n) {
+      return A2(stringProperty,
+      "tabIndex",
+      $Basics.toString(n));
+   };
+   var charset = function (value) {
+      return A2(stringProperty,
+      "charset",
+      value);
+   };
+   var content = function (value) {
+      return A2(stringProperty,
+      "content",
+      value);
+   };
+   var httpEquiv = function (value) {
+      return A2(stringProperty,
+      "httpEquiv",
+      value);
+   };
+   var language = function (value) {
+      return A2(stringProperty,
+      "language",
+      value);
+   };
+   var src = function (value) {
+      return A2(stringProperty,
+      "src",
+      value);
+   };
+   var height = function (value) {
+      return A2(stringProperty,
+      "height",
+      $Basics.toString(value));
+   };
+   var width = function (value) {
+      return A2(stringProperty,
+      "width",
+      $Basics.toString(value));
+   };
+   var alt = function (value) {
+      return A2(stringProperty,
+      "alt",
+      value);
+   };
+   var preload = function (value) {
+      return A2(stringProperty,
+      "preload",
+      value);
+   };
+   var poster = function (value) {
+      return A2(stringProperty,
+      "poster",
+      value);
+   };
+   var kind = function (value) {
+      return A2(stringProperty,
+      "kind",
+      value);
+   };
+   var srclang = function (value) {
+      return A2(stringProperty,
+      "srclang",
+      value);
+   };
+   var sandbox = function (value) {
+      return A2(stringProperty,
+      "sandbox",
+      value);
+   };
+   var srcdoc = function (value) {
+      return A2(stringProperty,
+      "srcdoc",
+      value);
+   };
+   var type$ = function (value) {
+      return A2(stringProperty,
+      "type",
+      value);
+   };
+   var value = function (value) {
+      return A2(stringProperty,
+      "value",
+      value);
+   };
+   var placeholder = function (value) {
+      return A2(stringProperty,
+      "placeholder",
+      value);
+   };
+   var accept = function (value) {
+      return A2(stringProperty,
+      "accept",
+      value);
+   };
+   var acceptCharset = function (value) {
+      return A2(stringProperty,
+      "acceptCharset",
+      value);
+   };
+   var action = function (value) {
+      return A2(stringProperty,
+      "action",
+      value);
+   };
+   var autocomplete = function (bool) {
+      return A2(stringProperty,
+      "autocomplete",
+      bool ? "on" : "off");
+   };
+   var autosave = function (value) {
+      return A2(stringProperty,
+      "autosave",
+      value);
+   };
+   var enctype = function (value) {
+      return A2(stringProperty,
+      "enctype",
+      value);
+   };
+   var formaction = function (value) {
+      return A2(stringProperty,
+      "formaction",
+      value);
+   };
+   var list = function (value) {
+      return A2(stringProperty,
+      "list",
+      value);
+   };
+   var minlength = function (n) {
+      return A2(stringProperty,
+      "minLength",
+      $Basics.toString(n));
+   };
+   var maxlength = function (n) {
+      return A2(stringProperty,
+      "maxLength",
+      $Basics.toString(n));
+   };
+   var method = function (value) {
+      return A2(stringProperty,
+      "method",
+      value);
+   };
+   var name = function (value) {
+      return A2(stringProperty,
+      "name",
+      value);
+   };
+   var pattern = function (value) {
+      return A2(stringProperty,
+      "pattern",
+      value);
+   };
+   var size = function (n) {
+      return A2(stringProperty,
+      "size",
+      $Basics.toString(n));
+   };
+   var $for = function (value) {
+      return A2(stringProperty,
+      "htmlFor",
+      value);
+   };
+   var form = function (value) {
+      return A2(stringProperty,
+      "form",
+      value);
+   };
+   var max = function (value) {
+      return A2(stringProperty,
+      "max",
+      value);
+   };
+   var min = function (value) {
+      return A2(stringProperty,
+      "min",
+      value);
+   };
+   var step = function (n) {
+      return A2(stringProperty,
+      "step",
+      n);
+   };
+   var cols = function (n) {
+      return A2(stringProperty,
+      "cols",
+      $Basics.toString(n));
+   };
+   var rows = function (n) {
+      return A2(stringProperty,
+      "rows",
+      $Basics.toString(n));
+   };
+   var wrap = function (value) {
+      return A2(stringProperty,
+      "wrap",
+      value);
+   };
+   var usemap = function (value) {
+      return A2(stringProperty,
+      "useMap",
+      value);
+   };
+   var shape = function (value) {
+      return A2(stringProperty,
+      "shape",
+      value);
+   };
+   var coords = function (value) {
+      return A2(stringProperty,
+      "coords",
+      value);
+   };
+   var challenge = function (value) {
+      return A2(stringProperty,
+      "challenge",
+      value);
+   };
+   var keytype = function (value) {
+      return A2(stringProperty,
+      "keytype",
+      value);
+   };
+   var align = function (value) {
+      return A2(stringProperty,
+      "align",
+      value);
+   };
+   var cite = function (value) {
+      return A2(stringProperty,
+      "cite",
+      value);
+   };
+   var href = function (value) {
+      return A2(stringProperty,
+      "href",
+      value);
+   };
+   var target = function (value) {
+      return A2(stringProperty,
+      "target",
+      value);
+   };
+   var downloadAs = function (value) {
+      return A2(stringProperty,
+      "download",
+      value);
+   };
+   var hreflang = function (value) {
+      return A2(stringProperty,
+      "hreflang",
+      value);
+   };
+   var media = function (value) {
+      return A2(stringProperty,
+      "media",
+      value);
+   };
+   var ping = function (value) {
+      return A2(stringProperty,
+      "ping",
+      value);
+   };
+   var rel = function (value) {
+      return A2(stringProperty,
+      "rel",
+      value);
+   };
+   var datetime = function (value) {
+      return A2(stringProperty,
+      "datetime",
+      value);
+   };
+   var pubdate = function (value) {
+      return A2(stringProperty,
+      "pubdate",
+      value);
+   };
+   var start = function (n) {
+      return A2(stringProperty,
+      "start",
+      $Basics.toString(n));
+   };
+   var colspan = function (n) {
+      return A2(stringProperty,
+      "colSpan",
+      $Basics.toString(n));
+   };
+   var headers = function (value) {
+      return A2(stringProperty,
+      "headers",
+      value);
+   };
+   var rowspan = function (n) {
+      return A2(stringProperty,
+      "rowSpan",
+      $Basics.toString(n));
+   };
+   var scope = function (value) {
+      return A2(stringProperty,
+      "scope",
+      value);
+   };
+   var manifest = function (value) {
+      return A2(stringProperty,
+      "manifest",
+      value);
+   };
+   var boolProperty = F2(function (name,
+   bool) {
+      return A2(property,
+      name,
+      $Json$Encode.bool(bool));
+   });
+   var hidden = function (bool) {
+      return A2(boolProperty,
+      "hidden",
+      bool);
+   };
+   var contenteditable = function (bool) {
+      return A2(boolProperty,
+      "contentEditable",
+      bool);
+   };
+   var spellcheck = function (bool) {
+      return A2(boolProperty,
+      "spellcheck",
+      bool);
+   };
+   var async = function (bool) {
+      return A2(boolProperty,
+      "async",
+      bool);
+   };
+   var defer = function (bool) {
+      return A2(boolProperty,
+      "defer",
+      bool);
+   };
+   var scoped = function (bool) {
+      return A2(boolProperty,
+      "scoped",
+      bool);
+   };
+   var autoplay = function (bool) {
+      return A2(boolProperty,
+      "autoplay",
+      bool);
+   };
+   var controls = function (bool) {
+      return A2(boolProperty,
+      "controls",
+      bool);
+   };
+   var loop = function (bool) {
+      return A2(boolProperty,
+      "loop",
+      bool);
+   };
+   var $default = function (bool) {
+      return A2(boolProperty,
+      "default",
+      bool);
+   };
+   var seamless = function (bool) {
+      return A2(boolProperty,
+      "seamless",
+      bool);
+   };
+   var checked = function (bool) {
+      return A2(boolProperty,
+      "checked",
+      bool);
+   };
+   var selected = function (bool) {
+      return A2(boolProperty,
+      "selected",
+      bool);
+   };
+   var autofocus = function (bool) {
+      return A2(boolProperty,
+      "autofocus",
+      bool);
+   };
+   var disabled = function (bool) {
+      return A2(boolProperty,
+      "disabled",
+      bool);
+   };
+   var multiple = function (bool) {
+      return A2(boolProperty,
+      "multiple",
+      bool);
+   };
+   var novalidate = function (bool) {
+      return A2(boolProperty,
+      "noValidate",
+      bool);
+   };
+   var readonly = function (bool) {
+      return A2(boolProperty,
+      "readOnly",
+      bool);
+   };
+   var required = function (bool) {
+      return A2(boolProperty,
+      "required",
+      bool);
+   };
+   var ismap = function (value) {
+      return A2(boolProperty,
+      "isMap",
+      value);
+   };
+   var download = function (bool) {
+      return A2(boolProperty,
+      "download",
+      bool);
+   };
+   var reversed = function (bool) {
+      return A2(boolProperty,
+      "reversed",
+      bool);
+   };
+   var classList = function (list) {
+      return $class($String.join(" ")($List.map($Basics.fst)($List.filter($Basics.snd)(list))));
+   };
+   var style = function (props) {
+      return property("style")($Json$Encode.object($List.map(function (_v0) {
+         return function () {
+            switch (_v0.ctor)
+            {case "_Tuple2":
+               return {ctor: "_Tuple2"
+                      ,_0: _v0._0
+                      ,_1: $Json$Encode.string(_v0._1)};}
+            _U.badCase($moduleName,
+            "on line 156, column 35 to 57");
+         }();
+      })(props)));
+   };
+   var key = function (k) {
+      return A2(stringProperty,
+      "key",
+      k);
+   };
+   _elm.Html.Attributes.values = {_op: _op
+                                 ,key: key
+                                 ,style: style
+                                 ,$class: $class
+                                 ,classList: classList
+                                 ,id: id
+                                 ,title: title
+                                 ,hidden: hidden
+                                 ,type$: type$
+                                 ,value: value
+                                 ,checked: checked
+                                 ,placeholder: placeholder
+                                 ,selected: selected
+                                 ,accept: accept
+                                 ,acceptCharset: acceptCharset
+                                 ,action: action
+                                 ,autocomplete: autocomplete
+                                 ,autofocus: autofocus
+                                 ,autosave: autosave
+                                 ,disabled: disabled
+                                 ,enctype: enctype
+                                 ,formaction: formaction
+                                 ,list: list
+                                 ,maxlength: maxlength
+                                 ,minlength: minlength
+                                 ,method: method
+                                 ,multiple: multiple
+                                 ,name: name
+                                 ,novalidate: novalidate
+                                 ,pattern: pattern
+                                 ,readonly: readonly
+                                 ,required: required
+                                 ,size: size
+                                 ,$for: $for
+                                 ,form: form
+                                 ,max: max
+                                 ,min: min
+                                 ,step: step
+                                 ,cols: cols
+                                 ,rows: rows
+                                 ,wrap: wrap
+                                 ,href: href
+                                 ,target: target
+                                 ,download: download
+                                 ,downloadAs: downloadAs
+                                 ,hreflang: hreflang
+                                 ,media: media
+                                 ,ping: ping
+                                 ,rel: rel
+                                 ,ismap: ismap
+                                 ,usemap: usemap
+                                 ,shape: shape
+                                 ,coords: coords
+                                 ,src: src
+                                 ,height: height
+                                 ,width: width
+                                 ,alt: alt
+                                 ,autoplay: autoplay
+                                 ,controls: controls
+                                 ,loop: loop
+                                 ,preload: preload
+                                 ,poster: poster
+                                 ,$default: $default
+                                 ,kind: kind
+                                 ,srclang: srclang
+                                 ,sandbox: sandbox
+                                 ,seamless: seamless
+                                 ,srcdoc: srcdoc
+                                 ,reversed: reversed
+                                 ,start: start
+                                 ,align: align
+                                 ,colspan: colspan
+                                 ,rowspan: rowspan
+                                 ,headers: headers
+                                 ,scope: scope
+                                 ,async: async
+                                 ,charset: charset
+                                 ,content: content
+                                 ,defer: defer
+                                 ,httpEquiv: httpEquiv
+                                 ,language: language
+                                 ,scoped: scoped
+                                 ,accesskey: accesskey
+                                 ,contenteditable: contenteditable
+                                 ,contextmenu: contextmenu
+                                 ,dir: dir
+                                 ,draggable: draggable
+                                 ,dropzone: dropzone
+                                 ,itemprop: itemprop
+                                 ,lang: lang
+                                 ,spellcheck: spellcheck
+                                 ,tabindex: tabindex
+                                 ,challenge: challenge
+                                 ,keytype: keytype
+                                 ,cite: cite
+                                 ,datetime: datetime
+                                 ,pubdate: pubdate
+                                 ,manifest: manifest
+                                 ,property: property
+                                 ,attribute: attribute};
+   return _elm.Html.Attributes.values;
+};Elm.Html = Elm.Html || {};
 Elm.Html.Events = Elm.Html.Events || {};
 Elm.Html.Events.make = function (_elm) {
    "use strict";
@@ -3527,64 +4155,246 @@ Elm.Main.make = function (_elm) {
    $Basics = Elm.Basics.make(_elm),
    $Dict = Elm.Dict.make(_elm),
    $Html = Elm.Html.make(_elm),
+   $Html$Attributes = Elm.Html.Attributes.make(_elm),
    $Html$Events = Elm.Html.Events.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $Random = Elm.Random.make(_elm),
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm),
-   $StartApp$Simple = Elm.StartApp.Simple.make(_elm),
    $String = Elm.String.make(_elm);
+   var suggestionsForState = F2(function (mc,
+   state) {
+      return $List.map($Basics.snd)($List.reverse($List.sortBy($Basics.fst)(function () {
+         var _v0 = A2($Dict.get,
+         state,
+         mc);
+         switch (_v0.ctor)
+         {case "Just": return _v0._0;
+            case "Nothing":
+            return _L.fromArray([]);}
+         _U.badCase($moduleName,
+         "between lines 92 and 94");
+      }())));
+   });
+   var probability = A2($Random.$float,
+   0,
+   1);
+   var tokenizeData = function (data) {
+      return $List.filter(function (token) {
+         return !_U.eq(token,"");
+      })($String.words(data));
+   };
+   var normalizeNextStates = function (nextStates) {
+      return function () {
+         var totalP = $List.sum(A2($List.map,
+         $Basics.fst,
+         nextStates));
+         return A2($List.map,
+         function (_v2) {
+            return function () {
+               switch (_v2.ctor)
+               {case "_Tuple2":
+                  return {ctor: "_Tuple2"
+                         ,_0: _v2._0 / totalP
+                         ,_1: _v2._1};}
+               _U.badCase($moduleName,
+               "on line 74, column 56 to 67");
+            }();
+         },
+         nextStates);
+      }();
+   };
+   var normalizeProbabilities = function (mc) {
+      return A2($Dict.map,
+      function (_v6) {
+         return function () {
+            return normalizeNextStates;
+         }();
+      },
+      mc);
+   };
+   var updateNextState = F2(function (nextState,
+   mStates) {
+      return function () {
+         switch (mStates.ctor)
+         {case "Just":
+            return function () {
+                 var _v10 = A2($List.filter,
+                 function (_v15) {
+                    return function () {
+                       switch (_v15.ctor)
+                       {case "_Tuple2":
+                          return _U.eq(_v15._1,
+                            nextState);}
+                       _U.badCase($moduleName,
+                       "on line 65, column 91 to 105");
+                    }();
+                 },
+                 mStates._0);
+                 switch (_v10.ctor)
+                 {case "::":
+                    switch (_v10._0.ctor)
+                      {case "_Tuple2":
+                         switch (_v10._1.ctor)
+                           {case "[]":
+                              return $Maybe.Just(A2($List._op["::"],
+                                {ctor: "_Tuple2"
+                                ,_0: _v10._0._0 + 1
+                                ,_1: nextState},
+                                A2($List.filter,
+                                function (_v19) {
+                                   return function () {
+                                      switch (_v19.ctor)
+                                      {case "_Tuple2":
+                                         return !_U.eq(_v19._1,
+                                           nextState);}
+                                      _U.badCase($moduleName,
+                                      "on line 67, column 129 to 143");
+                                   }();
+                                },
+                                mStates._0)));}
+                           break;}
+                      break;
+                    case "[]":
+                    return $Maybe.Just(A2($List._op["::"],
+                      {ctor: "_Tuple2"
+                      ,_0: 1
+                      ,_1: nextState},
+                      mStates._0));}
+                 _U.badCase($moduleName,
+                 "between lines 65 and 67");
+              }();
+            case "Nothing":
+            return $Maybe.Just(_L.fromArray([{ctor: "_Tuple2"
+                                             ,_0: 1
+                                             ,_1: nextState}]));}
+         _U.badCase($moduleName,
+         "between lines 63 and 67");
+      }();
+   });
+   var updateState = F3(function (state,
+   nextState,
+   mc) {
+      return A3($Dict.update,
+      state,
+      updateNextState(nextState),
+      mc);
+   });
+   var TakeSuggestion = {ctor: "TakeSuggestion"};
+   var TrainingDataInput = function (a) {
+      return {ctor: "TrainingDataInput"
+             ,_0: a};
+   };
+   var Input = function (a) {
+      return {ctor: "Input",_0: a};
+   };
+   var Daydream = {ctor: "Daydream"};
+   var TrainMarkovChain = {ctor: "TrainMarkovChain"};
+   var NoOp = {ctor: "NoOp"};
+   var actions = $Signal.mailbox(NoOp);
+   var onInput = F2(function (address,
+   contentToValue) {
+      return A3($Html$Events.on,
+      "input",
+      $Html$Events.targetValue,
+      function (str) {
+         return A2($Signal.message,
+         address,
+         contentToValue(str));
+      });
+   });
+   var onTab = F3(function (address,
+   action,
+   noOp) {
+      return A2($Html$Events.onKeyPress,
+      address,
+      function (keyCode) {
+         return _U.eq(keyCode,
+         9) ? action : noOp;
+      });
+   });
+   var initTrainingData = "\nThe Project Gutenberg EBook of Les Miserables, by Victor Hugo\n\nThis eBook is for the use of anyone anywhere at no cost and with\nalmost no restrictions whatsoever.  You may copy it, give it away or\nre-use it under the terms of the Project Gutenberg License included\nwith this eBook or online at www.gutenberg.org\n";
+   var initState = "";
+   var trainMarkovChain = function (input) {
+      return function () {
+         var $ = A3($List.foldl,
+         F2(function (state,_v23) {
+            return function () {
+               switch (_v23.ctor)
+               {case "_Tuple2":
+                  return {ctor: "_Tuple2"
+                         ,_0: state
+                         ,_1: A3(updateState,
+                         _v23._0,
+                         state,
+                         _v23._1)};}
+               _U.badCase($moduleName,
+               "on line 80, column 83 to 112");
+            }();
+         }),
+         {ctor: "_Tuple2"
+         ,_0: initState
+         ,_1: $Dict.empty},
+         input),
+         prev = $._0,
+         markovChain = $._1;
+         return normalizeProbabilities(markovChain);
+      }();
+   };
+   var model = {_: {}
+               ,data: "a"
+               ,markovChain: trainMarkovChain(tokenizeData(initTrainingData))
+               ,memory: 1
+               ,seed: $Random.initialSeed(0)
+               ,trainingData: initTrainingData};
    var accumPValues = function (nextStates) {
       return function () {
          var _ = A3($List.foldl,
-         F2(function (_v0,_v1) {
+         F2(function (_v27,_v28) {
             return function () {
-               switch (_v1.ctor)
+               switch (_v28.ctor)
                {case "_Tuple2":
                   return function () {
-                       switch (_v0.ctor)
+                       switch (_v27.ctor)
                        {case "_Tuple2":
                           return {ctor: "_Tuple2"
-                                 ,_0: _v0._0 + _v1._0
+                                 ,_0: _v27._0 + _v28._0
                                  ,_1: A2($List._op["::"],
                                  {ctor: "_Tuple2"
-                                 ,_0: _v0._0 + _v1._0
-                                 ,_1: _v0._1},
-                                 _v1._1)};}
+                                 ,_0: _v27._0 + _v28._0
+                                 ,_1: _v27._1},
+                                 _v28._1)};}
                        _U.badCase($moduleName,
-                       "on line 67, column 88 to 125");
+                       "on line 89, column 88 to 125");
                     }();}
                _U.badCase($moduleName,
-               "on line 67, column 88 to 125");
+               "on line 89, column 88 to 125");
             }();
          }),
          {ctor: "_Tuple2"
          ,_0: 0
          ,_1: _L.fromArray([{ctor: "_Tuple2"
                             ,_0: 0
-                            ,_1: ""}])},
+                            ,_1: initState}])},
          nextStates);
          var states = function () {
             switch (_.ctor)
             {case "_Tuple2": return _._1;}
             _U.badCase($moduleName,
-            "on line 67, column 45 to 153");
+            "on line 89, column 45 to 160");
          }();
          return $List.reverse(states);
       }();
    };
-   var probability = A2($Random.$float,
-   0,
-   1);
    var nextState = F3(function (seed,
    mc,
    state) {
       return function () {
-         var _v11 = A2($Dict.get,
+         var _v38 = A2($Dict.get,
          state,
          mc);
-         switch (_v11.ctor)
+         switch (_v38.ctor)
          {case "Just":
             return function () {
                  var $ = A2($Random.generate,
@@ -3592,15 +4402,15 @@ Elm.Main.make = function (_elm) {
                  seed),
                  p = $._0,
                  newSeed = $._1;
-                 var nextState = $List.head($List.filter(function (_v13) {
+                 var nextState = $List.head($List.filter(function (_v40) {
                     return function () {
-                       switch (_v13.ctor)
+                       switch (_v40.ctor)
                        {case "_Tuple2":
-                          return _U.cmp(_v13._0,p) > 0;}
+                          return _U.cmp(_v40._0,p) > 0;}
                        _U.badCase($moduleName,
-                       "on line 73, column 110 to 125");
+                       "on line 108, column 110 to 125");
                     }();
-                 })(accumPValues(_v11._0)));
+                 })(accumPValues(_v38._0)));
                  return function () {
                     switch (nextState.ctor)
                     {case "Just":
@@ -3615,7 +4425,7 @@ Elm.Main.make = function (_elm) {
                               ,_0: $Maybe.Nothing
                               ,_1: newSeed};}
                     _U.badCase($moduleName,
-                    "between lines 74 and 77");
+                    "between lines 109 and 112");
                  }();
               }();
             case "Nothing":
@@ -3623,134 +4433,99 @@ Elm.Main.make = function (_elm) {
                    ,_0: $Maybe.Nothing
                    ,_1: seed};}
          _U.badCase($moduleName,
-         "between lines 70 and 77");
+         "between lines 105 and 112");
       }();
    });
-   var tokenizeData = function (data) {
-      return $List.filter(function (token) {
-         return !_U.eq(token,"");
-      })($String.words(data));
-   };
-   var currentState = function (model) {
-      return $List.head($List.reverse(tokenizeData(model.data)));
-   };
-   var normalizeNextStates = F2(function (state,
-   nextStates) {
+   var nStatesBack = F2(function (n,
+   model) {
       return function () {
-         var totalP = $List.sum(A2($List.map,
-         $Basics.fst,
-         nextStates));
-         return A2($List.map,
-         function (_v21) {
-            return function () {
-               switch (_v21.ctor)
-               {case "_Tuple2":
-                  return {ctor: "_Tuple2"
-                         ,_0: _v21._0 / totalP
-                         ,_1: _v21._1};}
-               _U.badCase($moduleName,
-               "on line 52, column 62 to 73");
-            }();
-         },
-         nextStates);
-      }();
-   });
-   var normalizeProbabilities = function (mc) {
-      return A2($Dict.map,
-      normalizeNextStates,
-      mc);
-   };
-   var updateNextState = F2(function (nextState,
-   mStates) {
-      return function () {
-         switch (mStates.ctor)
-         {case "Just":
-            return function () {
-                 var _v27 = A2($List.filter,
-                 function (_v32) {
-                    return function () {
-                       switch (_v32.ctor)
-                       {case "_Tuple2":
-                          return _U.eq(_v32._1,
-                            nextState);}
-                       _U.badCase($moduleName,
-                       "on line 43, column 91 to 105");
-                    }();
-                 },
-                 mStates._0);
-                 switch (_v27.ctor)
-                 {case "::":
-                    switch (_v27._0.ctor)
-                      {case "_Tuple2":
-                         switch (_v27._1.ctor)
-                           {case "[]":
-                              return $Maybe.Just(A2($List._op["::"],
-                                {ctor: "_Tuple2"
-                                ,_0: _v27._0._0 + 1
-                                ,_1: nextState},
-                                A2($List.filter,
-                                function (_v36) {
-                                   return function () {
-                                      switch (_v36.ctor)
-                                      {case "_Tuple2":
-                                         return !_U.eq(_v36._1,
-                                           nextState);}
-                                      _U.badCase($moduleName,
-                                      "on line 45, column 129 to 143");
-                                   }();
-                                },
-                                mStates._0)));}
-                           break;}
-                      break;
-                    case "[]":
-                    return $Maybe.Just(A2($List._op["::"],
-                      {ctor: "_Tuple2"
-                      ,_0: 1
-                      ,_1: nextState},
-                      mStates._0));}
-                 _U.badCase($moduleName,
-                 "between lines 43 and 45");
-              }();
+         var _v48 = $List.head($List.drop(n)($List.reverse(tokenizeData(model.data))));
+         switch (_v48.ctor)
+         {case "Just": return _v48._0;
             case "Nothing":
-            return $Maybe.Just(_L.fromArray([{ctor: "_Tuple2"
-                                             ,_0: 1
-                                             ,_1: nextState}]));}
+            return initState;}
          _U.badCase($moduleName,
-         "between lines 41 and 45");
+         "between lines 118 and 120");
       }();
    });
-   var updateState = F3(function (state,
-   nextState,
-   mc) {
-      return A3($Dict.update,
-      state,
-      updateNextState(nextState),
-      mc);
+   var currentState = function (model) {
+      return A2(nStatesBack,
+      0,
+      model);
+   };
+   var previousState = function (model) {
+      return A2(nStatesBack,
+      1,
+      model);
+   };
+   var suggestions = F2(function (n,
+   model) {
+      return $List.take(n)(function () {
+         var _v50 = A2(suggestionsForState,
+         model.markovChain,
+         currentState(model));
+         switch (_v50.ctor)
+         {case "[]":
+            return A2(suggestionsForState,
+              model.markovChain,
+              previousState(model));}
+         return _v50;
+      }());
    });
-   var trainMarkovChain = function (input) {
+   var view = F2(function (address,
+   model) {
+      return A2($Html.div,
+      _L.fromArray([]),
+      _L.fromArray([A2($Html.div,
+                   _L.fromArray([]),
+                   _L.fromArray([$Html.text(A2($Basics._op["++"],
+                   "Suggestions:",
+                   $String.join(" ")(A2(suggestions,
+                   4,
+                   model))))]))
+                   ,A2($Html.div,
+                   _L.fromArray([]),
+                   _L.fromArray([A2($Html.textarea,
+                                _L.fromArray([A2($Html$Events.onBlur,
+                                             address,
+                                             NoOp)
+                                             ,A2(onInput,address,Input)
+                                             ,A3(onTab,
+                                             address,
+                                             TakeSuggestion,
+                                             NoOp)
+                                             ,$Html$Attributes.value(model.data)]),
+                                _L.fromArray([]))
+                                ,A2($Html.button,
+                                _L.fromArray([A2($Html$Events.onClick,
+                                address,
+                                Daydream)]),
+                                _L.fromArray([$Html.text("Daydream")]))]))
+                   ,A2($Html.div,
+                   _L.fromArray([]),
+                   _L.fromArray([A2($Html.textarea,
+                                _L.fromArray([A2(onInput,
+                                             address,
+                                             TrainingDataInput)
+                                             ,$Html$Attributes.value(model.trainingData)]),
+                                _L.fromArray([]))
+                                ,A2($Html.button,
+                                _L.fromArray([A2($Html$Events.onClick,
+                                address,
+                                TrainMarkovChain)]),
+                                _L.fromArray([$Html.text("Train Markov Chain")]))]))]));
+   });
+   var topSuggestion = function (model) {
       return function () {
-         var $ = A3($List.foldl,
-         F2(function (state,_v40) {
-            return function () {
-               switch (_v40.ctor)
-               {case "_Tuple2":
-                  return {ctor: "_Tuple2"
-                         ,_0: state
-                         ,_1: A3(updateState,
-                         _v40._0,
-                         state,
-                         _v40._1)};}
-               _U.badCase($moduleName,
-               "on line 58, column 83 to 112");
-            }();
-         }),
-         {ctor: "_Tuple2"
-         ,_0: ""
-         ,_1: $Dict.empty},
-         input),
-         prev = $._0,
-         markovChain = $._1;
-         return normalizeProbabilities(markovChain);
+         var _v51 = $List.head(A2(suggestions,
+         1,
+         model));
+         switch (_v51.ctor)
+         {case "Just": return _v51._0;
+            case "Nothing":
+            return "Something went bad";}
+         _U.badCase($moduleName,
+         "between lines 96 and 98");
       }();
    };
    var update = F2(function (action,
@@ -3759,102 +4534,78 @@ Elm.Main.make = function (_elm) {
          switch (action.ctor)
          {case "Daydream":
             return function () {
-                 var _v45 = currentState(model);
-                 switch (_v45.ctor)
-                 {case "Just":
-                    return function () {
-                         var _v47 = A2(nextState,
-                         model.seed,
-                         model.markovChain)(_v45._0);
-                         switch (_v47.ctor)
-                         {case "_Tuple2":
-                            switch (_v47._0.ctor)
-                              {case "Just":
-                                 return _U.replace([["data"
-                                                    ,$String.concat(_L.fromArray([model.data
-                                                                                 ," "
-                                                                                 ,_v47._0._0]))]
-                                                   ,["seed",_v47._1]],
-                                   model);
-                                 case "Nothing":
-                                 return _U.replace([["seed"
-                                                    ,_v47._1]
-                                                   ,["data"
-                                                    ,$String.concat(_L.fromArray([model.data
-                                                                                 ,"b"]))]],
-                                   model);}
-                              break;}
-                         _U.badCase($moduleName,
-                         "between lines 86 and 90");
-                      }();
-                    case "Nothing":
-                    return _U.replace([["data"
-                                       ,$String.concat(_L.fromArray([model.data
-                                                                    ,"a"]))]],
-                      model);}
-                 _U.badCase($moduleName,
-                 "between lines 84 and 90");
+                 var curState = currentState(model);
+                 return function () {
+                    var _v56 = A2(nextState,
+                    model.seed,
+                    model.markovChain)(curState);
+                    switch (_v56.ctor)
+                    {case "_Tuple2":
+                       switch (_v56._0.ctor)
+                         {case "Just":
+                            return _U.replace([["data"
+                                               ,$String.concat(_L.fromArray([model.data
+                                                                            ," "
+                                                                            ,_v56._0._0]))]
+                                              ,["seed",_v56._1]],
+                              model);
+                            case "Nothing":
+                            return _U.replace([["seed"
+                                               ,_v56._1]
+                                              ,["data"
+                                               ,$String.concat(_L.fromArray([model.data
+                                                                            ,"b"]))]],
+                              model);}
+                         break;}
+                    _U.badCase($moduleName,
+                    "between lines 56 and 60");
+                 }();
               }();
+            case "Input":
+            return _U.replace([["data"
+                               ,action._0]],
+              model);
+            case "NoOp": return model;
+            case "TakeSuggestion":
+            return _U.replace([["data"
+                               ,A2($String.join,
+                               " ",
+                               _L.fromArray([model.data
+                                            ,topSuggestion(model)]))]],
+              model);
             case "TrainMarkovChain":
             return _U.replace([["markovChain"
                                ,trainMarkovChain(tokenizeData(model.trainingData))]],
+              model);
+            case "TrainingDataInput":
+            return _U.replace([["trainingData"
+                               ,action._0]],
               model);}
          _U.badCase($moduleName,
-         "between lines 82 and 90");
+         "between lines 49 and 60");
       }();
    });
-   var Daydream = {ctor: "Daydream"};
-   var TrainMarkovChain = {ctor: "TrainMarkovChain"};
-   var view = F2(function (address,
-   model) {
-      return A2($Html.div,
-      _L.fromArray([]),
-      _L.fromArray([A2($Html.div,
-                   _L.fromArray([]),
-                   _L.fromArray([$Html.text(function () {
-                      var _v51 = currentState(model);
-                      switch (_v51.ctor)
-                      {case "Just":
-                         return $Basics.toString(A3(nextState,
-                           model.seed,
-                           model.markovChain,
-                           _v51._0));
-                         case "Nothing":
-                         return "No cur state";}
-                      _U.badCase($moduleName,
-                      "between lines 30 and 32");
-                   }())]))
-                   ,A2($Html.div,
-                   _L.fromArray([]),
-                   _L.fromArray([$Html.text(model.data)]))
-                   ,A2($Html.button,
-                   _L.fromArray([A2($Html$Events.onClick,
-                   address,
-                   TrainMarkovChain)]),
-                   _L.fromArray([$Html.text("Train Markov Chain")]))
-                   ,A2($Html.button,
-                   _L.fromArray([A2($Html$Events.onClick,
-                   address,
-                   Daydream)]),
-                   _L.fromArray([$Html.text("Daydream")]))]));
-   });
-   var initTrainingData = "\nThe Project Gutenberg EBook of Les Miserables, by Victor Hugo\n\nThis eBook is for the use of anyone anywhere at no cost and with\nalmost no restrictions whatsoever.  You may copy it, give it away or\nre-use it under the terms of the Project Gutenberg License included\nwith this eBook or online at www.gutenberg.org\n";
-   var model = {_: {}
-               ,data: "a"
-               ,markovChain: trainMarkovChain(tokenizeData(initTrainingData))
-               ,memory: 1
-               ,seed: $Random.initialSeed(0)
-               ,trainingData: initTrainingData};
-   var main = $StartApp$Simple.start({_: {}
-                                     ,model: model
-                                     ,update: update
-                                     ,view: view});
+   var modelSignal = A3($Signal.foldp,
+   update,
+   model,
+   actions.signal);
+   var main = A2($Signal.map,
+   view(actions.address),
+   modelSignal);
    _elm.Main.values = {_op: _op
+                      ,initState: initState
                       ,initTrainingData: initTrainingData
                       ,model: model
                       ,view: view
+                      ,onTab: onTab
+                      ,onInput: onInput
+                      ,NoOp: NoOp
                       ,TrainMarkovChain: TrainMarkovChain
                       ,Daydream: Daydream
+                      ,Input: Input
+                      ,TrainingDataInput: TrainingDataInput
+                      ,TakeSuggestion: TakeSuggestion
+                      ,update: update
                       ,updateNextState: updateNextState
                       ,updateState: updateState
                       ,normalizeNextStates: normalizeNextStates
@@ -3863,9 +4614,15 @@ Elm.Main.make = function (_elm) {
                       ,tokenizeData: tokenizeData
                       ,probability: probability
                       ,accumPValues: accumPValues
+                      ,suggestionsForState: suggestionsForState
+                      ,topSuggestion: topSuggestion
+                      ,suggestions: suggestions
                       ,nextState: nextState
                       ,currentState: currentState
-                      ,update: update
+                      ,previousState: previousState
+                      ,nStatesBack: nStatesBack
+                      ,actions: actions
+                      ,modelSignal: modelSignal
                       ,main: main};
    return _elm.Main.values;
 };Elm.Maybe = Elm.Maybe || {};
