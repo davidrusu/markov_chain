@@ -1,11 +1,12 @@
 import Html exposing (div, button, text, input, textarea)
-import Html.Attributes exposing (value)
-import Html.Events exposing (onClick, on, targetValue, onKeyPress, onBlur)
+import Html.Attributes exposing (value, tabindex)
+import Html.Events exposing (onClick, on, targetValue, onKeyPress, onBlur, onKeyDown, onWithOptions, defaultOptions, keyCode)
 import StartApp.Simple as StartApp
 import Dict
 import List
 import String
 import Random
+import Json.Decode exposing (customDecoder)
 
 type alias State = String
 initState = ""
@@ -29,8 +30,9 @@ model = { markovChain = trainMarkovChain (tokenizeData initTrainingData)
 view address model =
   div []
     [ -- div [] [ text <| toString model.markovChain ]
-      div [] [ text <| "Suggestions:" ++ (String.join " " <| suggestions 4 model) ]
-    , div [] [ textarea [ onInput address Input, onTab address TakeSuggestion NoOp, value model.data] []
+      div [] [ text <| "CurrentState: " ++ (toString <| currentState model) ]
+    , div [] [ text <| "Suggestions:" ++ (String.join " " <| suggestions 4 model) ]
+    , div [] [ textarea [ tabindex -1, onInput address Input, onTab address TakeSuggestion, value model.data] []
              , button [ onClick address Daydream ] [ text "Daydream" ]
              ]
     , div [] [ textarea [ onInput address TrainingDataInput, value model.trainingData] []
@@ -38,7 +40,11 @@ view address model =
              ]
     ]
 
-onTab address action noOp = onKeyPress address (\keyCode -> if keyCode == 9 then action else noOp)
+preventDefaultOptions = { defaultOptions | preventDefault <- True }
+  
+onTab address action = onWithOptions "keydown" preventDefaultOptions (customDecoder keyCode (\code ->  case code of
+                                                                                                         9 -> Result.Ok code
+                                                                                                         _ -> Result.Err "Not a tab")) (\code -> Signal.message address action)
   
 onInput address contentToValue =
     on "input" targetValue (\str -> Signal.message address (contentToValue str))
@@ -48,7 +54,14 @@ type Action = NoOp | TrainMarkovChain | Daydream | Input String | TrainingDataIn
 update action model =
   case action of
     NoOp                     -> model
-    TakeSuggestion           -> { model | data <- String.join " " [model.data, topSuggestion model] }
+    TakeSuggestion           -> let newData = case String.endsWith " " model.data of -- suggestionsForState model.markovChain (currentState model)  of
+                                                False -> String.slice 0 -(String.length <| currentState model) model.data
+                                                True  -> model.data
+                                    seperator = case currentState model of
+                                                  initState -> ""
+                                                  _         -> " "
+                                in
+                                { model | data <- String.concat [newData, seperator, topSuggestion model, " "] }
     Input string             -> { model | data <- string }
     TrainingDataInput string -> { model | trainingData <- string }
     TrainMarkovChain         -> { model | markovChain <- trainMarkovChain (tokenizeData model.trainingData) }

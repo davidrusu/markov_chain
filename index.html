@@ -4157,6 +4157,7 @@ Elm.Main.make = function (_elm) {
    $Html = Elm.Html.make(_elm),
    $Html$Attributes = Elm.Html.Attributes.make(_elm),
    $Html$Events = Elm.Html.Events.make(_elm),
+   $Json$Decode = Elm.Json.Decode.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $Random = Elm.Random.make(_elm),
@@ -4174,7 +4175,7 @@ Elm.Main.make = function (_elm) {
             case "Nothing":
             return _L.fromArray([]);}
          _U.badCase($moduleName,
-         "between lines 92 and 94");
+         "between lines 105 and 107");
       }())));
    });
    var probability = A2($Random.$float,
@@ -4199,7 +4200,7 @@ Elm.Main.make = function (_elm) {
                          ,_0: _v2._0 / totalP
                          ,_1: _v2._1};}
                _U.badCase($moduleName,
-               "on line 74, column 56 to 67");
+               "on line 87, column 56 to 67");
             }();
          },
          nextStates);
@@ -4228,7 +4229,7 @@ Elm.Main.make = function (_elm) {
                           return _U.eq(_v15._1,
                             nextState);}
                        _U.badCase($moduleName,
-                       "on line 65, column 91 to 105");
+                       "on line 78, column 91 to 105");
                     }();
                  },
                  mStates._0);
@@ -4250,7 +4251,7 @@ Elm.Main.make = function (_elm) {
                                          return !_U.eq(_v19._1,
                                            nextState);}
                                       _U.badCase($moduleName,
-                                      "on line 67, column 129 to 143");
+                                      "on line 80, column 129 to 143");
                                    }();
                                 },
                                 mStates._0)));}
@@ -4263,14 +4264,14 @@ Elm.Main.make = function (_elm) {
                       ,_1: nextState},
                       mStates._0));}
                  _U.badCase($moduleName,
-                 "between lines 65 and 67");
+                 "between lines 78 and 80");
               }();
             case "Nothing":
             return $Maybe.Just(_L.fromArray([{ctor: "_Tuple2"
                                              ,_0: 1
                                              ,_1: nextState}]));}
          _U.badCase($moduleName,
-         "between lines 63 and 67");
+         "between lines 76 and 80");
       }();
    });
    var updateState = F3(function (state,
@@ -4304,14 +4305,28 @@ Elm.Main.make = function (_elm) {
          contentToValue(str));
       });
    });
-   var onTab = F3(function (address,
-   action,
-   noOp) {
-      return A2($Html$Events.onKeyPress,
-      address,
-      function (keyCode) {
-         return _U.eq(keyCode,
-         9) ? action : noOp;
+   var preventDefaultOptions = _U.replace([["preventDefault"
+                                           ,true]],
+   $Html$Events.defaultOptions);
+   var onTab = F2(function (address,
+   action) {
+      return A4($Html$Events.onWithOptions,
+      "keydown",
+      preventDefaultOptions,
+      A2($Json$Decode.customDecoder,
+      $Html$Events.keyCode,
+      function (code) {
+         return function () {
+            switch (code)
+            {case 9:
+               return $Result.Ok(code);}
+            return $Result.Err("Not a tab");
+         }();
+      }),
+      function (code) {
+         return A2($Signal.message,
+         address,
+         action);
       });
    });
    var initTrainingData = "\nThe Project Gutenberg EBook of Les Miserables, by Victor Hugo\n\nThis eBook is for the use of anyone anywhere at no cost and with\nalmost no restrictions whatsoever.  You may copy it, give it away or\nre-use it under the terms of the Project Gutenberg License included\nwith this eBook or online at www.gutenberg.org\n";
@@ -4319,18 +4334,18 @@ Elm.Main.make = function (_elm) {
    var trainMarkovChain = function (input) {
       return function () {
          var $ = A3($List.foldl,
-         F2(function (state,_v23) {
+         F2(function (state,_v24) {
             return function () {
-               switch (_v23.ctor)
+               switch (_v24.ctor)
                {case "_Tuple2":
                   return {ctor: "_Tuple2"
                          ,_0: state
                          ,_1: A3(updateState,
-                         _v23._0,
+                         _v24._0,
                          state,
-                         _v23._1)};}
+                         _v24._1)};}
                _U.badCase($moduleName,
-               "on line 80, column 83 to 112");
+               "on line 93, column 83 to 112");
             }();
          }),
          {ctor: "_Tuple2"
@@ -4351,25 +4366,25 @@ Elm.Main.make = function (_elm) {
    var accumPValues = function (nextStates) {
       return function () {
          var _ = A3($List.foldl,
-         F2(function (_v27,_v28) {
+         F2(function (_v28,_v29) {
             return function () {
-               switch (_v28.ctor)
+               switch (_v29.ctor)
                {case "_Tuple2":
                   return function () {
-                       switch (_v27.ctor)
+                       switch (_v28.ctor)
                        {case "_Tuple2":
                           return {ctor: "_Tuple2"
-                                 ,_0: _v27._0 + _v28._0
+                                 ,_0: _v28._0 + _v29._0
                                  ,_1: A2($List._op["::"],
                                  {ctor: "_Tuple2"
-                                 ,_0: _v27._0 + _v28._0
-                                 ,_1: _v27._1},
-                                 _v28._1)};}
+                                 ,_0: _v28._0 + _v29._0
+                                 ,_1: _v28._1},
+                                 _v29._1)};}
                        _U.badCase($moduleName,
-                       "on line 89, column 88 to 125");
+                       "on line 102, column 88 to 125");
                     }();}
                _U.badCase($moduleName,
-               "on line 89, column 88 to 125");
+               "on line 102, column 88 to 125");
             }();
          }),
          {ctor: "_Tuple2"
@@ -4382,7 +4397,7 @@ Elm.Main.make = function (_elm) {
             switch (_.ctor)
             {case "_Tuple2": return _._1;}
             _U.badCase($moduleName,
-            "on line 89, column 45 to 160");
+            "on line 102, column 45 to 160");
          }();
          return $List.reverse(states);
       }();
@@ -4391,10 +4406,10 @@ Elm.Main.make = function (_elm) {
    mc,
    state) {
       return function () {
-         var _v38 = A2($Dict.get,
+         var _v39 = A2($Dict.get,
          state,
          mc);
-         switch (_v38.ctor)
+         switch (_v39.ctor)
          {case "Just":
             return function () {
                  var $ = A2($Random.generate,
@@ -4402,15 +4417,15 @@ Elm.Main.make = function (_elm) {
                  seed),
                  p = $._0,
                  newSeed = $._1;
-                 var nextState = $List.head($List.filter(function (_v40) {
+                 var nextState = $List.head($List.filter(function (_v41) {
                     return function () {
-                       switch (_v40.ctor)
+                       switch (_v41.ctor)
                        {case "_Tuple2":
-                          return _U.cmp(_v40._0,p) > 0;}
+                          return _U.cmp(_v41._0,p) > 0;}
                        _U.badCase($moduleName,
-                       "on line 108, column 110 to 125");
+                       "on line 121, column 110 to 125");
                     }();
-                 })(accumPValues(_v38._0)));
+                 })(accumPValues(_v39._0)));
                  return function () {
                     switch (nextState.ctor)
                     {case "Just":
@@ -4425,7 +4440,7 @@ Elm.Main.make = function (_elm) {
                               ,_0: $Maybe.Nothing
                               ,_1: newSeed};}
                     _U.badCase($moduleName,
-                    "between lines 109 and 112");
+                    "between lines 122 and 125");
                  }();
               }();
             case "Nothing":
@@ -4433,19 +4448,19 @@ Elm.Main.make = function (_elm) {
                    ,_0: $Maybe.Nothing
                    ,_1: seed};}
          _U.badCase($moduleName,
-         "between lines 105 and 112");
+         "between lines 118 and 125");
       }();
    });
    var nStatesBack = F2(function (n,
    model) {
       return function () {
-         var _v48 = $List.head($List.drop(n)($List.reverse(tokenizeData(model.data))));
-         switch (_v48.ctor)
-         {case "Just": return _v48._0;
+         var _v49 = $List.head($List.drop(n)($List.reverse(tokenizeData(model.data))));
+         switch (_v49.ctor)
+         {case "Just": return _v49._0;
             case "Nothing":
             return initState;}
          _U.badCase($moduleName,
-         "between lines 118 and 120");
+         "between lines 131 and 133");
       }();
    });
    var currentState = function (model) {
@@ -4461,15 +4476,15 @@ Elm.Main.make = function (_elm) {
    var suggestions = F2(function (n,
    model) {
       return $List.take(n)(function () {
-         var _v50 = A2(suggestionsForState,
+         var _v51 = A2(suggestionsForState,
          model.markovChain,
          currentState(model));
-         switch (_v50.ctor)
+         switch (_v51.ctor)
          {case "[]":
             return A2(suggestionsForState,
               model.markovChain,
               previousState(model));}
-         return _v50;
+         return _v51;
       }());
    });
    var view = F2(function (address,
@@ -4479,6 +4494,11 @@ Elm.Main.make = function (_elm) {
       _L.fromArray([A2($Html.div,
                    _L.fromArray([]),
                    _L.fromArray([$Html.text(A2($Basics._op["++"],
+                   "CurrentState: ",
+                   $Basics.toString(currentState(model))))]))
+                   ,A2($Html.div,
+                   _L.fromArray([]),
+                   _L.fromArray([$Html.text(A2($Basics._op["++"],
                    "Suggestions:",
                    $String.join(" ")(A2(suggestions,
                    4,
@@ -4486,14 +4506,11 @@ Elm.Main.make = function (_elm) {
                    ,A2($Html.div,
                    _L.fromArray([]),
                    _L.fromArray([A2($Html.textarea,
-                                _L.fromArray([A2($Html$Events.onBlur,
-                                             address,
-                                             NoOp)
+                                _L.fromArray([$Html$Attributes.tabindex(-1)
                                              ,A2(onInput,address,Input)
-                                             ,A3(onTab,
+                                             ,A2(onTab,
                                              address,
-                                             TakeSuggestion,
-                                             NoOp)
+                                             TakeSuggestion)
                                              ,$Html$Attributes.value(model.data)]),
                                 _L.fromArray([]))
                                 ,A2($Html.button,
@@ -4517,15 +4534,15 @@ Elm.Main.make = function (_elm) {
    });
    var topSuggestion = function (model) {
       return function () {
-         var _v51 = $List.head(A2(suggestions,
+         var _v52 = $List.head(A2(suggestions,
          1,
          model));
-         switch (_v51.ctor)
-         {case "Just": return _v51._0;
+         switch (_v52.ctor)
+         {case "Just": return _v52._0;
             case "Nothing":
             return "Something went bad";}
          _U.badCase($moduleName,
-         "between lines 96 and 98");
+         "between lines 109 and 111");
       }();
    };
    var update = F2(function (action,
@@ -4536,29 +4553,29 @@ Elm.Main.make = function (_elm) {
             return function () {
                  var curState = currentState(model);
                  return function () {
-                    var _v56 = A2(nextState,
+                    var _v57 = A2(nextState,
                     model.seed,
                     model.markovChain)(curState);
-                    switch (_v56.ctor)
+                    switch (_v57.ctor)
                     {case "_Tuple2":
-                       switch (_v56._0.ctor)
+                       switch (_v57._0.ctor)
                          {case "Just":
                             return _U.replace([["data"
                                                ,$String.concat(_L.fromArray([model.data
                                                                             ," "
-                                                                            ,_v56._0._0]))]
-                                              ,["seed",_v56._1]],
+                                                                            ,_v57._0._0]))]
+                                              ,["seed",_v57._1]],
                               model);
                             case "Nothing":
                             return _U.replace([["seed"
-                                               ,_v56._1]
+                                               ,_v57._1]
                                               ,["data"
                                                ,$String.concat(_L.fromArray([model.data
                                                                             ,"b"]))]],
                               model);}
                          break;}
                     _U.badCase($moduleName,
-                    "between lines 56 and 60");
+                    "between lines 69 and 73");
                  }();
               }();
             case "Input":
@@ -4567,12 +4584,30 @@ Elm.Main.make = function (_elm) {
               model);
             case "NoOp": return model;
             case "TakeSuggestion":
-            return _U.replace([["data"
-                               ,A2($String.join,
-                               " ",
-                               _L.fromArray([model.data
-                                            ,topSuggestion(model)]))]],
-              model);
+            return function () {
+                 var seperator = function () {
+                    var _v61 = currentState(model);
+                    return "";
+                 }();
+                 var newData = function () {
+                    var _v62 = A2(suggestionsForState,
+                    model.markovChain,
+                    currentState(model));
+                    switch (_v62.ctor)
+                    {case "[]":
+                       return A3($String.slice,
+                         0,
+                         0 - $String.length(currentState(model)),
+                         model.data);}
+                    return model.data;
+                 }();
+                 return _U.replace([["data"
+                                    ,$String.concat(_L.fromArray([newData
+                                                                 ,seperator
+                                                                 ,topSuggestion(model)
+                                                                 ," "]))]],
+                 model);
+              }();
             case "TrainMarkovChain":
             return _U.replace([["markovChain"
                                ,trainMarkovChain(tokenizeData(model.trainingData))]],
@@ -4582,7 +4617,7 @@ Elm.Main.make = function (_elm) {
                                ,action._0]],
               model);}
          _U.badCase($moduleName,
-         "between lines 49 and 60");
+         "between lines 55 and 73");
       }();
    });
    var modelSignal = A3($Signal.foldp,
@@ -4597,6 +4632,7 @@ Elm.Main.make = function (_elm) {
                       ,initTrainingData: initTrainingData
                       ,model: model
                       ,view: view
+                      ,preventDefaultOptions: preventDefaultOptions
                       ,onTab: onTab
                       ,onInput: onInput
                       ,NoOp: NoOp
