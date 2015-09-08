@@ -1,17 +1,47 @@
-import Html exposing (div, button, text, input, textarea)
-import Html.Attributes exposing (value, tabindex)
-import Html.Events exposing (onClick, on, targetValue, onKeyPress, onBlur, onKeyDown, onWithOptions, defaultOptions, keyCode)
-import StartApp.Simple as StartApp
+import Html exposing (div, button, text, input, textarea, Attribute, p, span)
+import Html.Attributes exposing (value, tabindex, style)
+import Html.Events exposing (..)
 import Dict
 import List
 import String
 import Random
 import Json.Decode exposing (customDecoder)
 
-type alias State = String
-initState = ""
+import Css exposing (Styles, setViewport)
+import Css.Flex as Flex
+import Css.Display as Display exposing (display)
+import Css.Shadow as Shadow
+import Css.Background as Background
+import Css.Text as Text
+import Css.Font as Font
+import Css.Padding as Padding
+import Css.Dimension as Dimension
+import Css.Margin as Margin
 
-type alias  MarkovChain = Dict.Dict State (List (Float, State))
+centered : Styles -> Styles
+centered styles =
+  styles
+    |> display Display.Flex
+    |> Flex.justifyContent Flex.JCCenter
+    |> Flex.alignItems Flex.AICenter
+
+type alias State = String
+                 
+initState : State
+initState = ""
+            
+errorState : State
+errorState = "ERROR!!!"
+
+type alias MarkovChain = Dict.Dict State (List (Float, State))
+type alias Model = { data : String
+                   , markovChain : MarkovChain
+                   , memory : Int
+                   , seed : Random.Seed
+                   , trainingData : String
+                   }
+
+initTrainingData : String
 initTrainingData = """
 The Project Gutenberg EBook of Les Miserables, by Victor Hugo
 
@@ -20,18 +50,31 @@ almost no restrictions whatsoever.  You may copy it, give it away or
 re-use it under the terms of the Project Gutenberg License included
 with this eBook or online at www.gutenberg.org
 """
-                   
-model = { markovChain = trainMarkovChain (tokenizeData initTrainingData)
+
+initModel : Model
+initModel = { markovChain = trainMarkovChain <| tokenizeData initTrainingData
         , memory = 1
         , trainingData = initTrainingData
-        , data = "a"
+        , data = ""
         , seed = Random.initialSeed 0}
 
+suggestionStyle =
+  style [ ("backgroundColor", "#cccccc")
+        , ("display", "inline-block")
+        , ("height", "30px")
+        , ("verticalAlign", "middle")
+        ]
+
+viewSuggestion : State -> Html.Html
+viewSuggestion state = div [suggestionStyle] [ p [] [text state]]
+
+view : Signal.Address Action -> Model -> Html.Html
 view address model =
   div []
-    [ -- div [] [ text <| toString model.markovChain ]
-      div [] [ text <| "CurrentState: " ++ (toString <| currentState model) ]
-    , div [] [ text <| "Suggestions:" ++ (String.join " " <| suggestions 4 model) ]
+    [ div [] [ text <| "CurrentState: " ++ (toString <| currentState model) ]
+    , div [] [ text <| "Suggestions:"
+             , div [] <| [ span [ style [("display", "inline-block")]] [] ] ++ (List.map viewSuggestion <| topSuggestions 4 model)
+             ]
     , div [] [ textarea [ tabindex -1, onInput address Input, onTab address TakeSuggestion, value model.data] []
              , button [ onClick address Daydream ] [ text "Daydream" ]
              ]
@@ -40,17 +83,23 @@ view address model =
              ]
     ]
 
+preventDefaultOptions : Options
 preventDefaultOptions = { defaultOptions | preventDefault <- True }
-  
-onTab address action = onWithOptions "keydown" preventDefaultOptions (customDecoder keyCode (\code ->  case code of
-                                                                                                         9 -> Result.Ok code
-                                                                                                         _ -> Result.Err "Not a tab")) (\code -> Signal.message address action)
-  
-onInput address contentToValue =
-    on "input" targetValue (\str -> Signal.message address (contentToValue str))
+
+tabDecoder : Json.Decode.Decoder Int
+tabDecoder = customDecoder keyCode (\code -> case code of
+                                               9 -> Result.Ok code
+                                               _ -> Result.Err "Not a tab")
+
+onTab : Signal.Address a -> a -> Attribute
+onTab address action = onWithOptions "keydown" preventDefaultOptions tabDecoder (\_ -> Signal.message address action)
+
+onInput : Signal.Address a -> (String -> a) -> Attribute
+onInput address contentToValue = on "input" targetValue (\str -> Signal.message address (contentToValue str))
       
 type Action = NoOp | TrainMarkovChain | Daydream | Input String | TrainingDataInput String | TakeSuggestion
 
+update : Action -> Model -> Model
 update action model =
   case action of
     NoOp                     -> model
@@ -73,11 +122,12 @@ update action model =
                                                              , data <- String.concat [model.data, "b"] }
 
 updateNextState : State -> Maybe (List (Float, State)) -> Maybe (List (Float, State))
-updateNextState nextState = \mStates -> case mStates of
-                                          Nothing         -> Just [(1, nextState)]
-                                          Just nextStates -> case List.filter (\(_, s) -> s == nextState) nextStates of
-                                                               []        -> Just <| (1, nextState) ::  nextStates
-                                                               [(p, s)]  -> Just <| (p+1, nextState) :: List.filter (\(_, s) -> s /= nextState) nextStates
+updateNextState nextState maybeNextStates = case maybeNextStates of
+                                              Nothing         -> Just [(1, nextState)]
+                                              Just nextStates -> case List.filter (\(_, state) -> state == nextState) nextStates of
+                                                                   []        -> Just <| (1, nextState) ::  nextStates
+                                                                   [(p, s)]  -> Just <| (p+1, nextState) :: List.filter (\(_, s) -> s /= nextState) nextStates
+                                                                   otherwise -> Nothing -- Something went wrong
 
 updateState : State -> State -> MarkovChain -> MarkovChain
 updateState state nextState mc = Dict.update state (updateNextState nextState) mc
@@ -93,41 +143,63 @@ trainMarkovChain : List State -> MarkovChain
 trainMarkovChain input = let (prev, markovChain) = List.foldl (\state (p, mc) -> (state, updateState p state mc)) (initState, Dict.empty) input in
                          markovChain |> normalizeProbabilities
 
+tokenizeData : String -> List State
 tokenizeData data = List.filter (\token -> token /= "") <| String.words data
 
 probability : Random.Generator Float
 probability = Random.float 0 1
 
-accumPValues : List (Float, State) -> List (Float, State)
-accumPValues nextStates = let (_, states) = List.foldl (\(p, state) (accumP, past) -> (p + accumP, (p + accumP, state)::past)) (0, [(0, initState)]) nextStates in List.reverse states
+-- essentially computes the integral of the probability distribution
+-- e.g. [(0.1, a), (0.5, b), (0.3, c), (0.1, d)] -> [(0.1, a), (0.6, b), (0.9, c), (1, d)]
+-- This makes drawing a random state weighted by this probability distribution much easier.
+-- Just generate 0 < p < 1 and take the first state whose cumulative p value is greater than p
+
+cumulativePValues : List (Float, State) -> List (Float, State)
+cumulativePValues nextStates =
+  let
+    f (p, state) ((accumP, _)::_ as past) = (p + accumP, state)::past
+    cumulativeStates = List.foldl f [(0, initState)] nextStates
+  in List.reverse cumulativeStates
 
 suggestionsForState : MarkovChain -> State -> List State
 suggestionsForState mc state = List.map snd <| List.reverse <| List.sortBy fst <| case Dict.get state mc of
                                                                                     Nothing -> []
                                                                                     Just nextStates -> nextStates
 
-topSuggestion model = case List.head <| suggestions 1 model of
-                        Nothing -> "Something went bad"
+
+topSuggestion : Model -> State   
+topSuggestion model = case List.head <| suggestions model of
+                        Nothing -> errorState
                         Just suggestion -> suggestion
 
-suggestions n model = List.take n <| case suggestionsForState model.markovChain (currentState model)  of
-                                       [] -> suggestionsForState model.markovChain (previousState model)
-                                       xs -> xs
+topSuggestions : Int -> Model -> List State
+topSuggestions n model = List.take n <| suggestions model
+
+suggestions : Model -> List State
+suggestions model =
+  let curState = currentState model
+      allSuggestions = case suggestionsForState model.markovChain curState  of
+                         [] -> suggestionsForState model.markovChain (previousState model)
+                         xs -> xs
+  in  allSuggestions
 
 nextState : Random.Seed -> MarkovChain -> State -> (Maybe State, Random.Seed)
 nextState seed mc state = case Dict.get state mc of
                        Nothing -> (Nothing, seed)
                        Just nextStates -> let (p, newSeed) = Random.generate probability seed
-                                              nextState = List.head <| List.filter (\(cumulativeP, state) -> cumulativeP > p) <| accumPValues nextStates in
+                                              nextState = List.head <| List.filter (\(cumulativeP, state) -> cumulativeP > p) <| cumulativePValues nextStates in
                                           case nextState of
                                             Nothing      -> (Nothing, newSeed)
                                             Just (_, ns) -> (Just ns, newSeed)
                                              
 -- this should return the initState if list is empty
-currentState model = nStatesBack 0 model
+currentState : Model -> State
+currentState model = if model.data `String.endsWith` " " then initState else nStatesBack 0 model
                      
+previousState : Model -> State
 previousState model = nStatesBack 1 model
 
+nStatesBack : Int -> Model -> State
 nStatesBack n model = case List.head <| List.drop n <| List.reverse <| tokenizeData model.data of
                        Nothing    -> initState
                        Just state -> state
@@ -135,6 +207,8 @@ nStatesBack n model = case List.head <| List.drop n <| List.reverse <| tokenizeD
 actions : Signal.Mailbox Action
 actions = Signal.mailbox NoOp
 
-modelSignal = Signal.foldp update model actions.signal
+modelSignal : Signal Model
+modelSignal = Signal.foldp update initModel actions.signal
 
+main : Signal Html.Html
 main = Signal.map (view actions.address) modelSignal
