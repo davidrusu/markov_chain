@@ -15,7 +15,7 @@ import Css.Background as Background
 import Css.Text as Text
 import Css.Font as Font
 import Css.Padding as Padding
-import Css.Dimension as Dimension
+import Css.Dimension as Dim
 import Css.Margin as Margin
 
 centered : Styles -> Styles
@@ -53,34 +53,48 @@ with this eBook or online at www.gutenberg.org
 
 initModel : Model
 initModel = { markovChain = trainMarkovChain <| tokenizeData initTrainingData
-        , memory = 1
-        , trainingData = initTrainingData
-        , data = ""
-        , seed = Random.initialSeed 0}
+            , memory = 1
+            , trainingData = initTrainingData
+            , data = ""
+            , seed = Random.initialSeed 0 }
 
 suggestionStyle =
-  style [ ("backgroundColor", "#cccccc")
+  style [ ("backgroundColor", "#aacccc")
+        , ("borderRadius", "3px")
         , ("display", "inline-block")
-        , ("height", "30px")
-        , ("verticalAlign", "middle")
+        , ("padding", "5px")
+        , ("margin", "3px")
         ]
 
 viewSuggestion : State -> Html.Html
-viewSuggestion state = div [suggestionStyle] [ p [] [text state]]
+viewSuggestion state = div [suggestionStyle] [ text state ]
 
 view : Signal.Address Action -> Model -> Html.Html
 view address model =
-  div []
-    [ div [] [ text <| "CurrentState: " ++ (toString <| currentState model) ]
-    , div [] [ text <| "Suggestions:"
-             , div [] <| [ span [ style [("display", "inline-block")]] [] ] ++ (List.map viewSuggestion <| topSuggestions 4 model)
-             ]
-    , div [] [ textarea [ tabindex -1, onInput address Input, onTab address TakeSuggestion, value model.data] []
-             , button [ onClick address Daydream ] [ text "Daydream" ]
-             ]
-    , div [] [ textarea [ onInput address TrainingDataInput, value model.trainingData] []
-             , button [ onClick address TrainMarkovChain ] [ text "Train Markov Chain" ]
-             ]
+  let styles =
+        [("height", "100%")]
+         
+          -- |> Margin.all 10 10 10 10
+      inputStyle =
+        [ ("width", "49%")
+        , ("height", "500px")
+        , ("marginRight", "0")
+        , ("marginLeft", "0")
+        , ("padding", "5px")
+        , ("border", "none")
+        , ("backgroundColor", "#faf7f0")
+        , ("display", "inline-block")
+        , ("resize", "none")
+        ]
+  in 
+    div [style styles]
+          [ div [] [ text <| "CurrentState: " ++ (toString <| currentState model) ]
+          , div [] [ button [ onClick address Daydream ] [ text "Daydream" ]
+                   , div [] <| [ span [ style [("display", "inline-block")]] [] ] ++ (List.map viewSuggestion <| topSuggestions 4 model)
+                   ]
+          , textarea [ style inputStyle, tabindex -1, onInput address Input, onTab address TakeSuggestion, value model.data] []
+          , textarea [ style inputStyle, onInput address TrainingDataInput, value model.trainingData] []
+          , button [ onClick address TrainMarkovChain ] [ text "Train Markov Chain" ]
     ]
 
 preventDefaultOptions : Options
@@ -182,7 +196,7 @@ suggestions model =
                          [] -> suggestionsForState model.markovChain (previousState model)
                          xs -> xs
   in  allSuggestions
-
+      
 nextState : Random.Seed -> MarkovChain -> State -> (Maybe State, Random.Seed)
 nextState seed mc state = case Dict.get state mc of
                        Nothing -> (Nothing, seed)
