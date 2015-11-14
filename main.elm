@@ -56,6 +56,7 @@ init = { markovChain = trainMarkovChain <| tokenizeData initTrainingData
        }
 
 suggestionStyle = [ ("backgroundColor", "#64908A")
+                  , ("color", "#dddddd")
                   , ("borderRadius", "3px")
                   , ("display", "inline-block")
                   , ("padding", "5px")
@@ -105,7 +106,6 @@ view address model =
                                          , ("backgroundColor", "#424254") 
                                          , ("color", "#dddddd") ]
       daydreamButtonStyle = suggestionStyle ++ [ ("backgroundColor", "#351330")
-                                               , ("color", "#dddddd")
                                                , ("borderStyle", "none") ]
       errorString = case model.errorMsg of
                       Nothing -> ""
