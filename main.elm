@@ -132,8 +132,9 @@ view address model =
                       Just s  -> s
   in 
     div [style styles]
-          [ div [] [ text <| "CurrentState: " ++ (toString <| currentState model) ]
-          , div [] [ text <| "Prediction State: " ++ (toString <| predictionState model) ]
+          [ div [] [ text <| "CurrentState: " ++ (toString <| currentState model.data) ]
+          , div [] [ text <| "Prediction State: " ++ (toString <| predictionState model.data) ]
+          , div [] [ text <| "Previous State: " ++ (toString <| previousState model.data) ]
           , div [] [ text errorString ]
           , div [] [ button [ onClick address Daydream ] [ text "Daydream" ]
                    , div [] <| [ span [ style [("display", "inline-block")]] [] ] ++ (List.map (viewSuggestion address) <| topSuggestions 100 model)
@@ -165,18 +166,21 @@ type Action = NoOp
             | TakeTopSuggestion
             | TakeSuggestion State
 
-appendState : Model -> State -> String
-appendState model state =
-  let
-    curState = currentState model
-    seperator = case curState of
-                  initState -> ""
-                  _         -> " "
+tokenSeperator data =
+    if initState == currentState data then
+      ""
+    else
+      " "
     
-    newData = if | endsInSpace model.data -> model.data
-                 | otherwise -> String.slice 0 -(String.length curState) model.data
+              
+appendState : String -> State -> String
+appendState data state =
+  let
+    curState = currentState data
+    newData = if | endsInSpace data -> data
+                 | otherwise -> String.slice 0 -(String.length curState) data
 
-    data' = String.concat [newData, seperator, state, " "]
+    data' = String.concat [newData, tokenSeperator data, state, " "]
   in
     data'
   
@@ -186,11 +190,11 @@ handleAction action model =
     case action of
       NoOp -> model
       TakeSuggestion state ->
-        { model | data <- appendState model state }
+        { model | data <- appendState model.data state }
       TakeTopSuggestion ->
         let
           data' = case topSuggestion model of
-                    Just state -> appendState model state
+                    Just state -> appendState model.data state
                     Nothing -> model.data
         in
           { model | data <- data' }
@@ -200,46 +204,64 @@ handleAction action model =
       TrainMarkovChain         -> { model | markovChain <- trainMarkovChain (tokenizeData model.trainingData) }
       Daydream                 ->
         let
-          predictState = predictionState model
+          predictState = predictionState model.data
         in
           case nextState model.seed model.markovChain predictState of
-            (Just token, newSeed) -> { model | data <- appendState model token
+            (Just token, newSeed) -> { model | data <- appendState model.data token
                                              , seed <- newSeed}
             (Nothing, newSeed)    -> { model | seed <- newSeed}
 
 updateErrorMsg : Model -> Model
 updateErrorMsg model =
-  let
-    problem = (previousState model) ++ " " ++ (currentState model)
-  in
-    case topSuggestion model of
-      Nothing -> { model | errorMsg <- Just <| "I'm Stuck! feed some examples that start with '" ++ problem ++ "'" }
-      Just _  -> { model | errorMsg <- Nothing }
+  case topSuggestion model of
+    Just _  -> { model | errorMsg <- Nothing }
+    Nothing ->
+      let
+        msg = if previousState model.data == initState then
+                String.concat [ "Interesting, I've never seen someone start with '"
+                              , currentState model.data
+                              , "' and initstate is '"
+                              , initState
+                              , "'" ]
+              else 
+                let
+                  problem = String.concat [ previousState model.data
+                                          , tokenSeperator model.data
+                                          , currentState model.data ]
+                in
+                  "I'm Stuck! feed me some examples that start with '" ++ problem ++ "'"
+      in
+        { model | errorMsg <- Just msg }
 
 update : Action -> Model -> Model
 update action = handleAction action >> updateErrorMsg
 
 updateNextState : State -> Maybe (List (Float, State)) -> Maybe (List (Float, State))
-updateNextState nextState maybeNextStates = case maybeNextStates of
-                                              Nothing         -> Just [(1, nextState)]
-                                              Just nextStates -> case List.filter (\(_, state) -> state == nextState) nextStates of
-                                                                   []        -> Just <| (1, nextState) ::  nextStates
-                                                                   [(p, s)]  -> Just <| (p+1, nextState) :: List.filter (\(_, s) -> s /= nextState) nextStates
-                                                                   otherwise -> Nothing -- Something went wrong
+updateNextState nextState maybeNextStates =
+  case maybeNextStates of
+    Nothing         -> Just [(1, nextState)]
+    Just nextStates ->
+      case List.filter (\(_, s) -> s == nextState) nextStates of
+        []       ->
+          Just <| (1, nextState) :: nextStates
+        [(p, s)] as states ->
+          let
+            statesLen = toFloat <| List.length states
+            newP = (p * statesLen + 1) / (statesLen + 1)
+            otherStates = List.filter (\(_, s) -> s /= nextState) nextStates
+          in
+            Just <| (newP, nextState) :: otherStates
+        otherwise -> Nothing -- This shouldn't happen, something went wrong
 
 updateState : State -> State -> MarkovChain -> MarkovChain
 updateState state nextState mc = Dict.update state (updateNextState nextState) mc
 
-normalizeNextStates : List (Float, State) -> List (Float, State)
-normalizeNextStates nextStates = let totalP = List.sum <| List.map fst nextStates in
-                                 List.map (\(p, s) -> (p/totalP, s)) nextStates
-
-normalizeProbabilities : MarkovChain -> MarkovChain
-normalizeProbabilities mc = Dict.map (\_ -> normalizeNextStates)  mc
-
 trainMarkovChain : List State -> MarkovChain
-trainMarkovChain input = let (prev, markovChain) = List.foldl (\state (p, mc) -> (state, updateState p state mc)) (initState, Dict.empty) input in
-                         markovChain |> normalizeProbabilities
+trainMarkovChain input =
+  let
+    (prev, markovChain) = List.foldl (\state (p, mc) -> (state, updateState p state mc)) (initState, Dict.empty) input
+  in
+    markovChain
 
 tokenizeData : String -> List State
 tokenizeData data = List.filter (\token -> token /= "") <| String.words data
@@ -255,15 +277,19 @@ probability = Random.float 0 1
 cumulativePValues : List (Float, State) -> List (Float, State)
 cumulativePValues nextStates =
   let
-    f (p, state) ((accumP, _)::_ as past) = (p + accumP, state)::past
+    f (p, state) ((accumP, _) :: _ as past) = (p + accumP, state)::past
     cumulativeStates = List.foldl f [(0, initState)] nextStates
-  in List.reverse cumulativeStates
+  in
+    List.reverse cumulativeStates
 
 suggestionsForState : MarkovChain -> State -> List State
-suggestionsForState mc state = List.map snd <| List.reverse <| List.sortBy fst <| case Dict.get state mc of
-                                                                                    Nothing -> []
-                                                                                    Just nextStates -> nextStates
-
+suggestionsForState mc state =
+  case Dict.get state mc of
+    Nothing -> []
+    Just nextStates ->           -- nextStates is a list of (p value, state)
+      List.sortBy fst nextStates -- sort by the p values
+        |> List.reverse          -- we want highest p values first
+        |> List.map snd          -- drop the p values and only keep the states
 
 topSuggestion : Model -> Maybe State   
 topSuggestion model = List.head <| suggestions model
@@ -276,39 +302,46 @@ endsInSpace = String.endsWith " "
                          
 suggestions : Model -> List State
 suggestions model =
-  let predictState = predictionState model
-      curState = currentState model
-      allSuggestions = case suggestionsForState model.markovChain predictState  of
-                         --[] -> suggestionsForState model.markovChain (previousState model)
-                         xs -> xs
+  let predictState = predictionState model.data
+      curState = currentState model.data
+      allSuggestions = suggestionsForState model.markovChain predictState
   in List.filter (String.startsWith curState) allSuggestions
       
 nextState : Random.Seed -> MarkovChain -> State -> (Maybe State, Random.Seed)
-nextState seed mc state = case Dict.get state mc of
-                       Nothing -> (Nothing, seed)
-                       Just nextStates -> let (p, newSeed) = Random.generate probability seed
-                                              nextState = List.head <| List.filter (\(cumulativeP, state) -> cumulativeP > p) <| cumulativePValues nextStates in
-                                          case nextState of
-                                            Nothing      -> (Nothing, newSeed)
-                                            Just (_, ns) -> (Just ns, newSeed)
-                                             
--- this should return the initState if list is empty
-currentState : Model -> State
-currentState model = if endsInSpace model.data then
-                       initState
-                     else
-                       nStatesBack 0 model
+nextState seed mc state =
+  case Dict.get state mc of
+    Nothing -> (Nothing, seed)
+    Just nextStates ->
+      let
+        (p, newSeed) = Random.generate probability seed
+        nextState = -- the first state whose commulative p value is greater or equal to the random p value 'p'
+          cumulativePValues nextStates 
+            |> List.filter (\(cumulativeP, _) -> cumulativeP >= p)
+            |> List.head
+      in
+        case nextState of
+          Nothing      -> (Nothing, newSeed) -- shouldn't ever happen, but w/e
+          Just (_, ns) -> (Just ns, newSeed)
 
-predictionState model = if endsInSpace model.data then
-                          nStatesBack 0 model
-                        else
-                          nStatesBack 1 model
-                     
-previousState : Model -> State
-previousState model = nStatesBack 1 model
+currentState : String -> State
+currentState data =
+  if endsInSpace data then
+    initState
+  else
+    nStatesBack 0 data
 
-nStatesBack : Int -> Model -> State
-nStatesBack n model = case List.head <| List.drop n <| List.reverse <| tokenizeData model.data of
+predictionState : String -> State
+predictionState data =
+  if endsInSpace data then
+    nStatesBack 0 data
+  else
+    nStatesBack 1 data
+
+previousState : String -> State
+previousState data = nStatesBack 1 data
+
+nStatesBack : Int -> String -> State
+nStatesBack n data = case List.head <| List.drop n <| List.reverse <| tokenizeData data of
                        Nothing    -> initState
                        Just state -> state
 
