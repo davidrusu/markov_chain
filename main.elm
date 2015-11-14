@@ -1,3 +1,4 @@
+import Markdown
 import Html exposing (br, div, button, text, input, textarea, Attribute, p, span)
 import Html.Attributes exposing (value, tabindex, style)
 import Html.Events exposing (..)
@@ -43,8 +44,7 @@ type alias Model = { data : String
                    }
 
 initTrainingData : String
-initTrainingData = """
-By A Foreigner
+initTrainingData = """By A Foreigner
 
 I like Canadians.
 They are so unlike Americans.
@@ -98,52 +98,75 @@ init = { markovChain = trainMarkovChain <| tokenizeData initTrainingData
        , errorMsg = Nothing
        }
 
-suggestionStyle =
-  style [ ("backgroundColor", "#aacccc")
-        , ("borderRadius", "3px")
-        , ("display", "inline-block")
-        , ("padding", "5px")
-        , ("margin", "3px")
-        ]
+suggestionStyle = [ ("backgroundColor", "#64908A")
+                  , ("borderRadius", "3px")
+                  , ("display", "inline-block")
+                  , ("padding", "5px")
+                  , ("margin", "3px")
+                  , ("fontSize", "14px")
+                  ]
 
 viewSuggestion : Signal.Address Action -> State -> Html.Html
-viewSuggestion address state = div [suggestionStyle, onClick address (TakeSuggestion state) ] [ text state ]
+viewSuggestion address state = div [style suggestionStyle, onClick address (TakeSuggestion state) ] [ text state ]
+
+greeting = """
+# Here lies an: Interactive Markov Chain Based Text Suggester
+
+On the right we have the data used to train our Markov chain, feel free to paste in your own writing samples, and on the left we have an area for you to type.
+
+  * To take the top suggestion, press **Tab** *(you can also click on the suggestion)*
+  * You can also have the machines do your work, try hitting the **daydream** button
+
+###### Some notes for david:
+  * The Markov chain is retrained everytime the training data changes, should make that clearer
+  * Try retraining with the input data as well
+"""
 
 view : Signal.Address Action -> Model -> Html.Html
 view address model =
   let styles =
-        [("height", "100%")]
-         
-          -- |> Margin.all 10 10 10 10
+        [ ("height", "100%")
+        , ("width", "100%")
+        , ("position", "absolute")
+        , ("backgroundColor", "#ffffff") ]
+      
       inputStyle =
-        [ ("width", "49%")
+        [ ("width", "47%")
         , ("height", "500px")
-        , ("marginRight", "0")
-        , ("marginLeft", "0")
-        , ("padding", "5px")
+        , ("padding", "10px")
         , ("border", "none")
-        , ("backgroundColor", "#faf7f0")
         , ("display", "inline-block")
         , ("resize", "none")
         , ("fontSize", "14px")
+        , ("position", "absolute")
+        , ("borderRadius", "4px")
         ]
+      userInputStyle = inputStyle ++ [ ("left", "1%")
+                                     , ("backgroundColor", "#E8DDA4")
+                                     , ("color", "#222222") ]
+      trainingInputStyle = inputStyle ++ [ ("right", "1%")
+                                         , ("backgroundColor", "#424254") 
+                                         , ("color", "#dddddd") ]
+      daydreamButtonStyle = suggestionStyle ++ [ ("backgroundColor", "#351330")
+                                               , ("color", "#dddddd")
+                                               , ("borderStyle", "none") ]
       errorString = case model.errorMsg of
                       Nothing -> ""
                       Just s  -> s
+      errorStyle = suggestionStyle ++ [ ("backgroundColor", "#CC2A41")
+                                      , ("display", if model.errorMsg == Nothing then "none" else "inline-block") ]
   in 
     div [style styles]
-          [ div [] [ text <| "CurrentState: " ++ (toString <| currentState model.data) ]
-          , div [] [ text <| "Prediction State: " ++ (toString <| predictionState model.data) ]
-          , div [] [ text <| "Previous State: " ++ (toString <| previousState model.data) ]
-          , div [style [("display", "inline-block")]]
-                  [ button [ style [("display", "inline-block")], onClick address Daydream ] [ text "Daydream" ]
-                  , div [style [("display", "inline-block")]] [ text errorString ]
-                  , div [style [("display", "inline-block")]] <| [ span [ style [("display", "inline-block")] ] [] ] ++ (List.map (viewSuggestion address) <| topSuggestions 100 model)
+          [ div [style [ ("display", "inline-block")
+                       , ("margin", "1%") ] ]
+                  [ Markdown.toHtml greeting
+                  , button [ style daydreamButtonStyle, onClick address Daydream ] [ text "Daydream" ]
+                  , div [style errorStyle] [ text errorString ]
+                  , div [style [("display", "inline-block")]] <| List.map (viewSuggestion address) <| topSuggestions 10 model
                   ]
           , br [] []
-          , textarea [ style inputStyle, tabindex -1, onInput address Input, onTab address TakeTopSuggestion, value model.data] []
-          , textarea [ style inputStyle, onInput address TrainingDataInput, value model.trainingData] []
-          , button [ onClick address TrainMarkovChain ] [ text "Train Markov Chain" ]
+          , textarea [ style userInputStyle, tabindex -1, onInput address Input, onTab address TakeTopSuggestion, value model.data] []
+          , textarea [ style trainingInputStyle, onInput address TrainingDataInput, value model.trainingData] []
     ]
 
 preventDefaultOptions : Options
@@ -222,9 +245,8 @@ updateErrorMsg model =
         msg = if previousState model.data == initState then
                 String.concat [ "Interesting, I've never seen someone start with '"
                               , currentState model.data
-                              , "' and initstate is '"
-                              , initState
-                              , "'" ]
+                              , "'"
+                              ]
               else 
                 let
                   problemState = nStatesBack 0 model.data
