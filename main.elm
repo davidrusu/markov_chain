@@ -1,4 +1,4 @@
-import Html exposing (div, button, text, input, textarea, Attribute, p, span)
+import Html exposing (br, div, button, text, input, textarea, Attribute, p, span)
 import Html.Attributes exposing (value, tabindex, style)
 import Html.Events exposing (..)
 import Dict
@@ -135,10 +135,12 @@ view address model =
           [ div [] [ text <| "CurrentState: " ++ (toString <| currentState model.data) ]
           , div [] [ text <| "Prediction State: " ++ (toString <| predictionState model.data) ]
           , div [] [ text <| "Previous State: " ++ (toString <| previousState model.data) ]
-          , div [] [ text errorString ]
-          , div [] [ button [ onClick address Daydream ] [ text "Daydream" ]
-                   , div [] <| [ span [ style [("display", "inline-block")]] [] ] ++ (List.map (viewSuggestion address) <| topSuggestions 100 model)
-                   ]
+          , div [style [("display", "inline-block")]]
+                  [ button [ style [("display", "inline-block")], onClick address Daydream ] [ text "Daydream" ]
+                  , div [style [("display", "inline-block")]] [ text errorString ]
+                  , div [style [("display", "inline-block")]] <| [ span [ style [("display", "inline-block")] ] [] ] ++ (List.map (viewSuggestion address) <| topSuggestions 100 model)
+                  ]
+          , br [] []
           , textarea [ style inputStyle, tabindex -1, onInput address Input, onTab address TakeTopSuggestion, value model.data] []
           , textarea [ style inputStyle, onInput address TrainingDataInput, value model.trainingData] []
           , button [ onClick address TrainMarkovChain ] [ text "Train Markov Chain" ]
@@ -166,8 +168,8 @@ type Action = NoOp
             | TakeTopSuggestion
             | TakeSuggestion State
 
-tokenSeperator data =
-    if initState == currentState data then
+tokenSeperator a b =
+    if endsInSpace a || a == initState then
       ""
     else
       " "
@@ -180,7 +182,7 @@ appendState data state =
     newData = if | endsInSpace data -> data
                  | otherwise -> String.slice 0 -(String.length curState) data
 
-    data' = String.concat [newData, tokenSeperator data, state, " "]
+    data' = String.concat [newData, tokenSeperator newData state, state, " "]
   in
     data'
   
@@ -225,9 +227,11 @@ updateErrorMsg model =
                               , "'" ]
               else 
                 let
-                  problem = String.concat [ previousState model.data
-                                          , tokenSeperator model.data
-                                          , currentState model.data ]
+                  problemState = nStatesBack 0 model.data
+                  prevState = previousState model.data
+                  problem = String.concat [ prevState
+                                          , tokenSeperator prevState problemState
+                                          , problemState ]
                 in
                   "I'm Stuck! feed me some examples that start with '" ++ problem ++ "'"
       in
